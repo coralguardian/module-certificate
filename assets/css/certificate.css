@@ -1,0 +1,155 @@
+@charset "UTF-8";
+/* CSS Document */
+
+html {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    height: 1122px;
+}
+
+.certif-wrapper {
+    background: url("../img/bg-global-xl.jpg") no-repeat;
+    background-size: cover;
+    margin: 0 auto;
+    padding: 110px 70px 0;
+    font-family: 'Open Sans', sans-serif;
+    box-sizing: border-box;
+    position: relative;
+    height: 100%;
+}
+
+.typo-courrier {
+    font-family: "Courier New";
+}
+
+.certif-stamp {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 180px;
+    /*height: 280px; !* garder le ratio *!*/
+}
+
+.certif-content {
+    background-color: #28335f;
+    border: 1px solid #333b64;
+    padding: 70px 50px 20px;
+    color: #FFF;
+    font-weight: 600;
+}
+
+.certif-content header {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.certif-content header.less-margin {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.certif-content header h1 {
+    text-transform: uppercase;
+    font-size: 33px;
+    position: relative;
+    font-weight: 700;
+	margin-bottom: 15px;
+}
+
+.certif-content header hr {
+    margin: 0 auto 10px;
+}
+
+.certif-content header span {
+	font-size: 22px;
+	font-weight: 600;
+}
+
+.certif-content .text-uppercase {
+    text-transform: uppercase;
+}
+
+.content-pics .pic-corail {
+    display: inline-block;
+    margin: 0 4.5% 0 0;
+    width: 66%;
+}
+
+.content-pics .pic-transplanteur {
+    display: inline-block;
+    width: 28.5%;
+}
+
+.content-pics .pic-transplanteur .text-uppercase {
+	font-weight: 500;
+	font-size: 15px;
+}
+
+.content-pics .pic-transplanteur .typo-courrier {
+	font-weight: 700;
+	font-size: 19px;
+}
+
+.content-pics .pic-transplanteur img {
+    margin: 0 0 10px 0;
+    display: block;
+}
+
+.certif-content img {
+    display: block;
+    width: 100%;
+}
+
+.certif-content .content-infos {
+    padding: 20px 0 0 0;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.certif-content .content-infos .infos-title {
+    font-size: 33px;
+    display: block;
+    margin: 0 0 15px 0;
+}
+
+.certif-content hr {
+    border: 0;
+    border-bottom: 1px solid #FFF;
+    width: 150px;
+}
+
+hr.bottom-hr {
+    margin: 25px auto;
+}
+
+.certif-website {
+    text-align: center;
+    font-weight: 800;
+    color: #FFF;
+    display: block;
+    text-decoration: none;
+    font-size: 26px;
+}
+
+.certif-wrapper .logo {
+    display: block;
+    margin: 20px auto 0;
+    width: 105px;
+    /*height: 130px;*/
+}
+
+.certif-wrapper.certif-reef .logo {
+    margin: 20px auto 0;
+}
+
+.infos .text-uppercase {
+    font-family: Open Sans, sans-serif;
+    font-weight: 600;
+}

@@ -1,0 +1,47 @@
+{% extends "base.twig" %}
+{% block title %}Certificate of adoption{% endblock %}
+
+{% block body %}
+
+    <div class="certif-wrapper certif-reef">
+
+        <img class="certif-stamp" src='data:image/png;base64,{{ stampImg }}' alt="Certificat d'adoption"/>
+
+        <div class="certif-content">
+            <header>
+                <h1>Certificate of adoption</h1>
+                <hr>
+                <span>of a reef contributing to Hatamin island’s restoration program in Indonesia</span>
+            </header>
+
+            <div class="content-pics">
+
+                <div class="pic-corail">
+                    <img src="data:image/png;base64,{{ productImg }}" alt="Récif adopté"/>
+                </div>
+
+                <div class="pic-transplanteur">
+                    <img src="data:image/png;base64,{{ teamImg }}" alt="Transplanteur"/>
+                    <strong class="text-uppercase">Transplanted by:</strong><br>
+                    <span class="typo-courrier">The Coral<br>Guardian team</span>
+                </div>
+
+            </div>
+
+            <div class="content-infos">
+                <span class="infos-title">{{ data.adopteeName }}</span>
+                <span class="infos">
+                <span class="text-uppercase">Date: </span><span class="typo-courrier">{{ data.date }}</span><br>
+                <span class="text-uppercase">GPS Coordinates: </span><span class="typo-courrier">8°24’05.14’’S - 119°52’37.28’’E</span>
+				</span>
+            </div>
+
+            <hr>
+
+            <a class="certif-website" href="https://www.coralguardian.org/">coralguardian.org</a>
+        </div>
+
+        <img class="logo" src="data:image/png;base64,{{ logoImg }}" alt="Coral Guardian"/>
+
+    </div>
+{% endblock %}

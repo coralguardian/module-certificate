@@ -17,6 +17,11 @@
             "type" : "vcs",
             "url": "git@github.com:ds-hyperion/restapi.git",
             "no-api": true
+        },
+        {
+            "type" : "vcs",
+            "url": "git@github.com:coralguardian/module-adoption.git",
+            "no-api": true
         }
     ],
     "authors": [
@@ -29,6 +34,7 @@
     "require": {
         "twig/twig": "^3.3",
         "hyperion/api2pdf": "dev-dev",
-        "hyperion/restapi": "dev-dev"
+        "hyperion/restapi": "dev-dev",
+        "d4rk0snet/adoption": "dev-dev"
     }
 }
