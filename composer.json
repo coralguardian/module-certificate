@@ -1,0 +1,34 @@
+{
+    "name": "d4rk0snet/certificate",
+    "description": "Plugin de gestion des certificats coral guardian",
+    "type": "wordpress-plugin",
+    "autoload": {
+        "psr-4": {
+            "D4rk0snet\\Certificate\\": "src/"
+        }
+    },
+    "repositories": [
+        {
+            "type" : "vcs",
+            "url": "git@github.com:ds-hyperion/api2pdf.git",
+            "no-api": true
+        },
+        {
+            "type" : "vcs",
+            "url": "git@github.com:ds-hyperion/restapi.git",
+            "no-api": true
+        }
+    ],
+    "authors": [
+        {
+            "name": "Benoit Delboé",
+            "email": "benoit@lescanumeriques.fr"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "twig/twig": "^3.3",
+        "hyperion/api2pdf": "dev-dev",
+        "hyperion/restapi": "dev-dev"
+    }
+}
