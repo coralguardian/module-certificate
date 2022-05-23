@@ -2,8 +2,9 @@
 
 namespace D4rk0snet\Certificate\Endpoint;
 
+use D4rk0snet\Adoption\Entity\AdopteeEntity;
 use D4rk0snet\Adoption\Entity\AdoptionEntity;
-use D4rk0snet\Certificate\Service\FiscalReceiptService;
+use D4rk0snet\Certificate\Service\CertificateService;
 use D4rk0snet\Certificate\Model\CertificateModel;
 use Hyperion\Doctrine\Service\DoctrineService;
 use Hyperion\RestAPI\APIEnpointAbstract;
@@ -22,35 +23,51 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             return APIManagement::APIError('Missing order uuid', 400);
         }
 
-        /** @var AdoptionEntity $order */
-        $order = DoctrineService::getEntityManager()->getRepository(AdoptionEntity::class)->find($orderUUID);
-        if ($order === null) {
-            return APIManagement::APIError('Order not found', 404);
+        /** @var AdoptionEntity $adoption */
+        $adoption = DoctrineService::getEntityManager()->getRepository(AdoptionEntity::class)->find($orderUUID);
+        if ($adoption === null) {
+            return APIManagement::APIError('Adoption not found', 404);
         }
 
-        $fiscalReceiptModel = new CertificateModel(
-            articles: '45/407',
-            receiptCode: 1,
-            customerFullName: $order->getFirstname(). " ".$order->getLastname(),
-            customerAddress: $order->getAddress(),
-            customerPostalCode: "xxx",
-            customerCity: $order->getCity(),
-            fiscalReductionPercentage: 60,
-            priceWord: "soixante",
-            price: $order->getAmount(),
-            date: new \DateTime(),
-            orderUuid: $orderUUID,
-            paymentMethod: 'Carte bancaire'
-        );
+        $imageFilePathCollection = [];
 
-        $fileURL = FiscalReceiptService::createReceipt($fiscalReceiptModel);
+        /** @var AdopteeEntity $adoptee */
+        foreach ($adoption->getAdoptees() as $adoptee) {
+            $certificateModel = new CertificateModel(
+                adoptedProduct: $adoption->getAdoptedProduct(),
+                adopteeName: $adoptee->getName(),
+                seeder: $adoptee->getSeeder(),
+                date: $adoption->getDate(),
+                language: $adoption->getLang(),
+                productPicture: $adoptee->getPicture()
+            );
+
+            $imageFilePathCollection[] = CertificateService::createCertificate($certificateModel);
+        }
+
+//        die;
+//        var_dump($imageFilePathCollection);die;
+        // Création du zip
+        $temporaryFilePathName = tempnam(sys_get_temp_dir(),"").".zip";
+        CertificateService::createZipFile($imageFilePathCollection, $temporaryFilePathName);
+
+        // == Téléchargement du fichier zip par le navigateur ==
+        header('Content-Type: application/zip');
+        header("Content-disposition: attachment; filename=\"Certificats.zip\"");
+        readfile($temporaryFilePathName);
+        unlink($temporaryFilePathName);
+        exit;
+
+
+
+
 
         return APIManagement::APIClientDownloadWithURL($fileURL, "receipt-coralguardian-".$fiscalReceiptModel->getReceiptCode().".pdf");
     }
 
     public static function getEndpoint(): string
     {
-        return "getFiscalReceipt";
+        return "getCertificates";
     }
 
     public static function getMethods(): array

@@ -6,7 +6,7 @@
 
     <div class="certif-wrapper">
 
-        <img class="certif-stamp" src="data:image/png;base64,{{ stampImg }}" alt="Certificat d'adoption"/>
+        <img class="certif-stamp" src="{{ assets_path ~ "img/stamp.png" }}" alt="Certificat d'adoption"/>
 
         <div class="certif-content">
             <header>
@@ -20,11 +20,11 @@
             <div class="content-pics">
 
                 <div class="pic-corail">
-                    <img src="data:image/png;base64,{{ productImg }}" alt="Corail adopté"/>
+                    <img src="{{ assets_path ~ "img/" ~ data.productPicture }}" alt="Corail adopté"/>
                 </div>
 
                 <div class="pic-transplanteur">
-                    <img src="data:image/png;base64,{{ transplantImg }}" alt="Transplanteur"/>
+                    <img src="{{ assets_path ~ "img/seeders/" ~ data.seederPicture }}" alt="Transplanteur"/>
                     <strong class="text-uppercase">Transplanted by:</strong><br>
                     <span class="typo-courrier">{{ data.seeder }}</span>
                 </div>
@@ -45,7 +45,7 @@
             <a class="certif-website" href="https://www.coralguardian.org/">coralguardian.org</a>
         </div>
 
-        <img class="logo" src="data:image/png;base64,{{ logoImg }}" alt="Coral Guardian"/>
+        <img class="logo" src="{{ assets_path ~ "img/logo-coral-guardian.png" }}" alt="Coral Guardian"/>
 
     </div>
 {% endblock %}

@@ -3,7 +3,7 @@
 
     <div class="certif-wrapper certif-reef">
 
-        <img class="certif-stamp" src='data:image/png;base64,{{ stampImg }}' alt="Certificat d'adoption"/>
+        <img class="certif-stamp" src='{{ assets_path ~ "img/stamp.png" }}' alt="Certificat d'adoption"/>
 
         <div class="certif-content">
             <header>
@@ -15,11 +15,11 @@
             <div class="content-pics">
 
                 <div class="pic-corail">
-                    <img src="data:image/png;base64,{{ productImg }}" alt="Récif adopté"/>
+                    <img src="{{ assets_path ~ "img/" ~ data.productPicture }}" alt="Récif adopté"/>
                 </div>
 
                 <div class="pic-transplanteur">
-                    <img src="data:image/png;base64,{{ teamImg }}" alt="Transplanteur"/>
+                    <img src="{{ assets_path ~ "img/coral-guardian-team.png" }}" alt="Transplanteur"/>
                     <strong class="text-uppercase">Transplanté par :</strong><br>
                     <span class="typo-courrier">L'équipe Coral<br>Guardian</span>
                 </div>
@@ -39,7 +39,7 @@
             <a class="certif-website" href="https://www.coralguardian.org/">coralguardian.org</a>
         </div>
 
-        <img class="logo" src="data:image/png;base64,{{ logoImg }}" alt="Coral Guardian"/>
+        <img class="logo" src="{{ assets_path ~ "img/logo-coral-guardian.png" }}" alt="Coral Guardian"/>
 
     </div>
 {% endblock %}

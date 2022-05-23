@@ -36,6 +36,8 @@ class CertificateModel
         return [
             'adopteeName' => $this->adopteeName,
             'seeder' => $this->seeder->value,
+            'seederPicture' => $this->getSeeder()->getPicture(),
+            'productPicture' => $this->getProductPicture(),
             'date' => $this->date->format("d-m-Y")
         ];
     }
@@ -58,6 +60,14 @@ class CertificateModel
     public function getAdopteeName(): string
     {
         return $this->adopteeName;
+    }
+
+    /**
+     * @param string $productPicture
+     */
+    public function setProductPicture(string $productPicture): void
+    {
+        $this->productPicture = $productPicture;
     }
 
     public function getProductPicture(): string

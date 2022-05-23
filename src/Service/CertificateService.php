@@ -4,10 +4,11 @@ namespace D4rk0snet\Certificate\Service;
 
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
 use D4rk0snet\Certificate\Model\CertificateModel;
-use D4rk0snet\CoralAdoption\Service\Wkhtmlto;
-use Hyperion\Api2pdf\Service\Api2PdfService;
+use Hyperion\Api2pdf\Service\Wkhtmlto;
+use Exception;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use ZipArchive;
 
 class CertificateService
 {
@@ -17,65 +18,64 @@ class CertificateService
         $loader = new FilesystemLoader(__DIR__ . "/../Template");
         $twig = new Environment($loader); // @todo : Activer le cache
         $lang = $certificateModel->getLanguage()->value;
+
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
             $file =  "coral-$lang.twig";
-            $picturePath = "corals/" . $certificateModel->getProductPicture();
+            $certificateModel->setProductPicture("corals/" . $certificateModel->getProductPicture());
         } else {
             $file = "reef-$lang.twig";
-            $picturePath = "reefs/" . $certificateModel->getProductPicture();
-
+            $certificateModel->setProductPicture("reefs/" . $certificateModel->getProductPicture());
         }
+
         $html = $twig->load($file)->render(
             [
                 'data' => $certificateModel->toArray(),
-                'productImg' => base64_encode(file_get_contents(__DIR__ . "/../Template/img/$picturePath")),
-                'transplantImg' => base64_encode(file_get_contents(__DIR__ . "/../Template/img/seeders/" . $certificateModel->getSeeder()->getPicture())),
-                'teamImg' => base64_encode(file_get_contents(__DIR__ . "/../Template/img/coral-guardian-team.png")),
-                'logoImg' => base64_encode(file_get_contents(__DIR__."/../Template/img/logo.png")),
-                'stampImg' => base64_encode(file_get_contents(__DIR__."/../Template/img/stamp.png")),
+                'assets_path' => home_url("/app/plugins/certificate/assets/", "http")
             ]
         );
 
+//        @todo: gérer le cas de noms identiques
         $imageTemporaryFilename = $lang === 'fr' ?
-            __DIR__ . "/../tmp/Coral_Guardian_Certificat_" . $certificateModel->getAdopteeName() . ".jpg" :
-            __DIR__ . "/../tmp/Coral_Guardian_Certificate_" . $certificateModel->getAdopteeName() . ".jpg";
+            __DIR__ . "/../../tmp/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
+            __DIR__ . "/../../tmp/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
 
-        Wkhtmlto::convertToPDF($html, $imageTemporaryFilename);
+        Wkhtmlto::convertToImage($html, $imageTemporaryFilename);
 
         return $imageTemporaryFilename;
-
-//        return Api2PdfService::convertHtmlToPdf(
-//            $html,
-//            false,
-//            "receipt-" . $fiscalReceiptModel->getReceiptCode() . ".pdf"
-//        );
     }
-//
-//    public function getCertificate(Adoption $adoption): string
-//    {
-//        $lang = $adoption->getOrder()->getLang();
-//        $certificateFile = "Certificates/" . ($adoption->getProduct()->getType() === Product::CORAL_TYPE ? "coral-$lang.twig" : "reef-$lang.twig");
-//
-//        if (!isset($this->templateWrapper[$certificateFile])) {
-//            $this->templateWrapper[$certificateFile] = $this->twigEnvironment->load($certificateFile);
-//        }
-//
-//        $html = $this->templateWrapper[$certificateFile]->render([
-//            'customerName' => $adoption->getOrder()->getCustomer()->getFullName(),
-//            'productName' => $adoption->getName(),
-//            'productPictureUrl' => wp_get_original_image_url($adoption->getPicture()),
-//            'date' => $adoption->getOrder()->getDate()->format("d/m/Y"),
-//            'transplantImgUrl' => wp_get_original_image_url($adoption->getSeeder()->getPicture()),
-//            'transplantName' => ucfirst($adoption->getSeeder()->getName()),
-//            'assets_path' => home_url("/app/plugins/coral-adoption/assets/", "http")
-//        ]);
-//
-//        $imageTemporaryFilename = $lang === 'fr' ?
-//            __DIR__ . "/../tmp/Coral_Guardian_Certificat_" . $adoption->getName() . ".jpg" :
-//            __DIR__ . "/../tmp/Coral_Guardian_Certificate_" . $adoption->getName() . ".jpg";
-//
-//        $this->wkhtmltoService->convertToImage($html, $imageTemporaryFilename);
-//
-//        return $imageTemporaryFilename;
-//    }
+
+    public static function createZipFile(array $certificateFiles, string $temporaryFilePathName): ZipArchive
+    {
+        try {
+            $zip = new ZipArchive();
+            if (false === $errorCode = $zip->open($temporaryFilePathName, ZipArchive::CREATE)) {
+                throw new Exception("Unable to open Zip File (error code " . $errorCode . ")");
+            }
+            foreach ($certificateFiles as $certificate) {
+                $certificate.= ".jpg";
+                if (false === $errorCode = $zip->addFile($certificate, basename($certificate))) {
+                    throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");
+                }
+            }
+
+            if (false === $zip->close()) {
+                throw new Exception("Unable to write zip to disk !");
+            }
+
+            self::cleanTemporaryFiles($certificateFiles);
+
+            return $zip;
+        } catch (Exception $exception) {
+            self::cleanTemporaryFiles($certificateFiles);
+            throw new $exception;
+        }
+    }
+
+    private static function cleanTemporaryFiles(array $certificateFiles): void
+    {
+        foreach ($certificateFiles as $certificateFile) {
+            unlink($certificateFile . '.jpg');
+            unlink($certificateFile . '.pdf');
+        }
+    }
 }
