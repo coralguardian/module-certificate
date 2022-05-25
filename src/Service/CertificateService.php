@@ -4,6 +4,7 @@ namespace D4rk0snet\Certificate\Service;
 
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
 use D4rk0snet\Certificate\Model\CertificateModel;
+use Hyperion\Api2pdf\Service\Api2PdfService;
 use Hyperion\Api2pdf\Service\Wkhtmlto;
 use Exception;
 use Twig\Environment;
@@ -21,24 +22,36 @@ class CertificateService
 
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
             $file =  "coral-$lang.twig";
-            $certificateModel->setProductPicture("corals/" . $certificateModel->getProductPicture());
+            $picturePath = "corals/" . $certificateModel->getProductPicture();
         } else {
             $file = "reef-$lang.twig";
-            $certificateModel->setProductPicture("reefs/" . $certificateModel->getProductPicture());
+            $picturePath = "reefs/" . $certificateModel->getProductPicture();
         }
 
         $html = $twig->load($file)->render(
             [
                 'data' => $certificateModel->toArray(),
-                'assets_path' => home_url("/app/plugins/certificate/assets/", "http")
+                'backgroundImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/bg-global-xl.jpg")),
+                'productImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/$picturePath")),
+                'transplantImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/seeders/" . $certificateModel->getSeeder()->getPicture())),
+                'teamImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/coral-guardian-team.png")),
+                'logoImg' => base64_encode(file_get_contents(__DIR__."/../../assets/img/logo-coral-guardian.png")),
+                'stampImg' => base64_encode(file_get_contents(__DIR__."/../../assets/img/stamp.png")),
             ]
+        );
+
+        $pdf = Api2PdfService::convertHtmlToPdf(
+            $html,
+            false,
+            "certificate-".urlencode($certificateModel->getAdopteeName()).".pdf"
         );
 
 //        @todo: gérer le cas de noms identiques
         $imageTemporaryFilename = $lang === 'fr' ?
-            __DIR__ . "/../../tmp/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
-            __DIR__ . "/../../tmp/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
+            __DIR__ . "/../../tmp/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) . ".pdf" :
+            __DIR__ . "/../../tmp/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName()) . ".pdf";
 
+        file_put_contents($imageTemporaryFilename, file_get_contents($pdf));
         Wkhtmlto::convertToImage($html, $imageTemporaryFilename);
 
         return $imageTemporaryFilename;

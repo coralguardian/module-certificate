@@ -29,22 +29,29 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             return APIManagement::APIError('Adoption not found', 404);
         }
 
+        if ($adoption->getAdoptees()->count() === 0) {
+            return APIManagement::APIError('Adoption without adoptees', 400);
+        }
+
         $imageFilePathCollection = [];
 
         /** @var AdopteeEntity $adoptee */
         foreach ($adoption->getAdoptees() as $adoptee) {
-            $certificateModel = new CertificateModel(
-                adoptedProduct: $adoption->getAdoptedProduct(),
-                adopteeName: $adoptee->getName(),
-                seeder: $adoptee->getSeeder(),
-                date: $adoption->getDate(),
-                language: $adoption->getLang(),
-                productPicture: $adoptee->getPicture()
-            );
+            try {
+                $certificateModel = new CertificateModel(
+                    adoptedProduct: $adoption->getAdoptedProduct(),
+                    adopteeName: $adoptee->getName(),
+                    seeder: $adoptee->getSeeder(),
+                    date: $adoption->getDate(),
+                    language: $adoption->getLang(),
+                    productPicture: $adoptee->getPicture()
+                );
+            } catch (\Exception $exception) {
+                return APIManagement::APIError($exception->getMessage(), 400);
+            }
 
             $imageFilePathCollection[] = CertificateService::createCertificate($certificateModel);
         }
-
 //        die;
 //        var_dump($imageFilePathCollection);die;
         // Création du zip
