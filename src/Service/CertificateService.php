@@ -13,7 +13,7 @@ use ZipArchive;
 
 class CertificateService
 {
-    public static function createCertificate(CertificateModel $certificateModel): string
+    public static function createCertificate(CertificateModel $certificateModel, ?int $index = null): string
     {
         // Generate certificate
         $loader = new FilesystemLoader(__DIR__ . "/../Template");
@@ -46,13 +46,14 @@ class CertificateService
             "certificate-".urlencode($certificateModel->getAdopteeName()).".pdf"
         );
 
-//        @todo: gérer le cas de noms identiques
-        $imageTemporaryFilename = $lang === 'fr' ?
-            __DIR__ . "/../../tmp/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) . ".pdf" :
-            __DIR__ . "/../../tmp/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName()) . ".pdf";
+        $fileName = $lang === 'fr' ?
+            "/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
+            "/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
 
-        file_put_contents($imageTemporaryFilename, file_get_contents($pdf));
-        Wkhtmlto::convertToImage($html, $imageTemporaryFilename);
+        $imageTemporaryFilename = __DIR__ . "/../../tmp/" . $fileName . "_" . $index ?: "";
+
+        file_put_contents($imageTemporaryFilename . ".pdf", file_get_contents($pdf));
+        Wkhtmlto::convertToImage($imageTemporaryFilename);
 
         return $imageTemporaryFilename;
     }

@@ -36,7 +36,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         $imageFilePathCollection = [];
 
         /** @var AdopteeEntity $adoptee */
-        foreach ($adoption->getAdoptees() as $adoptee) {
+        foreach ($adoption->getAdoptees() as $index => $adoptee) {
             try {
                 $certificateModel = new CertificateModel(
                     adoptedProduct: $adoption->getAdoptedProduct(),
@@ -50,10 +50,9 @@ class GetCertificateEndpoint extends APIEnpointAbstract
                 return APIManagement::APIError($exception->getMessage(), 400);
             }
 
-            $imageFilePathCollection[] = CertificateService::createCertificate($certificateModel);
+            $imageFilePathCollection[] = CertificateService::createCertificate($certificateModel, $index+1);
         }
-//        die;
-//        var_dump($imageFilePathCollection);die;
+
         // Création du zip
         $temporaryFilePathName = tempnam(sys_get_temp_dir(),"").".zip";
         CertificateService::createZipFile($imageFilePathCollection, $temporaryFilePathName);
