@@ -58,17 +58,9 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         CertificateService::createZipFile($imageFilePathCollection, $temporaryFilePathName);
 
         // == Téléchargement du fichier zip par le navigateur ==
-        header('Content-Type: application/zip');
-        header("Content-disposition: attachment; filename=\"Certificats.zip\"");
-        readfile($temporaryFilePathName);
+        $response = APIManagement::APIClientDownloadWithURL($temporaryFilePathName, "certificats.zip");
         unlink($temporaryFilePathName);
-        exit;
-
-
-
-
-
-        return APIManagement::APIClientDownloadWithURL($fileURL, "receipt-coralguardian-".$fiscalReceiptModel->getReceiptCode().".pdf");
+        return $response;
     }
 
     public static function getEndpoint(): string
