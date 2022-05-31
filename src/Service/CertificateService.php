@@ -3,6 +3,7 @@
 namespace D4rk0snet\Certificate\Service;
 
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
+use D4rk0snet\Certificate\Endpoint\GetCertificateEndpoint;
 use D4rk0snet\Certificate\Model\CertificateModel;
 use Hyperion\Api2pdf\Service\Api2PdfService;
 use Hyperion\Api2pdf\Service\Wkhtmlto;
@@ -21,7 +22,7 @@ class CertificateService
         $lang = $certificateModel->getLanguage()->value;
 
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $file =  "coral-$lang.twig";
+            $file = "coral-$lang.twig";
             $picturePath = "corals/" . $certificateModel->getProductPicture();
         } else {
             $file = "reef-$lang.twig";
@@ -35,15 +36,15 @@ class CertificateService
                 'productImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/$picturePath")),
                 'transplantImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/seeders/" . $certificateModel->getSeeder()->getPicture())),
                 'teamImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/coral-guardian-team.png")),
-                'logoImg' => base64_encode(file_get_contents(__DIR__."/../../assets/img/logo-coral-guardian.png")),
-                'stampImg' => base64_encode(file_get_contents(__DIR__."/../../assets/img/stamp.png")),
+                'logoImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/logo-coral-guardian.png")),
+                'stampImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/stamp.png")),
             ]
         );
 
         $pdf = Api2PdfService::convertHtmlToPdf(
             $html,
             false,
-            "certificate-".urlencode($certificateModel->getAdopteeName()).".pdf"
+            "certificate-" . urlencode($certificateModel->getAdopteeName()) . ".pdf"
         );
 
         $fileName = $lang === 'fr' ?
@@ -66,7 +67,7 @@ class CertificateService
                 throw new Exception("Unable to open Zip File (error code " . $errorCode . ")");
             }
             foreach ($certificateFiles as $certificate) {
-                $certificate.= ".jpg";
+                $certificate .= ".jpg";
                 if (false === $errorCode = $zip->addFile($certificate, basename($certificate))) {
                     throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");
                 }
@@ -91,5 +92,12 @@ class CertificateService
             unlink($certificateFile . '.jpg');
             unlink($certificateFile . '.pdf');
         }
+    }
+
+    public static function getSanitizedURL(string $uuid)
+    {
+        $urlParts = parse_url(GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid);
+
+        return $urlParts["host"] . $urlParts["path"] . "?" . $urlParts["query"];
     }
 }
