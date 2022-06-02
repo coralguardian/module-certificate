@@ -94,10 +94,8 @@ class CertificateService
         }
     }
 
-    public static function getSanitizedURL(string $uuid)
+    public static function getUrl(string $uuid)
     {
-        $urlParts = parse_url(GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid);
-
-        return $urlParts["host"] . $urlParts["path"] . "?" . $urlParts["query"];
+        return GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid;
     }
 }
