@@ -10,3 +10,4 @@
  * Licence: GPLv2
  */
 add_action('plugins_loaded', [\D4rk0snet\Certificate\Plugin::class, 'launchActions']);
+add_action('cli_init', [\D4rk0snet\Certificate\Plugin::class, 'addCLICommands']);

@@ -1,2 +1,5 @@
 /vendor/
+/certificates/*
+!/certificates/.gitkeep
+
 
