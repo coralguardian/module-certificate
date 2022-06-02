@@ -51,7 +51,7 @@ class CertificateService
             "/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
             "/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
 
-        $imageTemporaryFilename = __DIR__ . "/../../tmp/" . $fileName . "_" . $index ?: "";
+        $imageTemporaryFilename = __DIR__ . "/../../tmp/" . $fileName . ($index ? "_" . $index: "");
 
         file_put_contents($imageTemporaryFilename . ".pdf", file_get_contents($pdf));
         Wkhtmlto::convertToImage($imageTemporaryFilename);
