@@ -30,16 +30,12 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             return APIManagement::APIError('Adoption not found', 404);
         }
 
-        if ($adoption instanceof GiftAdoption) {
-            return APIManagement::APIError('Wrong endpoint for giftAdoptions', 400);
+        if (!$adoption->isPaid()) { // ce cas ne devrait pas arriver
+            return APIManagement::APIError('Adoption not payed', 400);
         }
 
         if ($adoption->getAdoptees()->count() === 0) {
             return APIManagement::APIError('Adoption without adoptees', 400);
-        }
-
-        if (!$adoption->isPaid()) { // ce cas ne devrait pas arriver
-            return APIManagement::APIError('Adoption not payed', 400);
         }
 
         $areAllAdopteesGenerated = true;

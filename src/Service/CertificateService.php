@@ -83,7 +83,13 @@ class CertificateService
             }
             $files = array_diff(scandir($certificateFolder), array('..', '.'));
             foreach ($files as $certificate) {
-                if (false === $errorCode = $zip->addFile($certificateFolder . "/" . $certificate, $certificate)) {
+                if (is_dir($folder = $certificateFolder . "/" . $certificate)) {
+                    $newZipName = tempnam(sys_get_temp_dir(),"").".zip";
+                    self::createZipFile($folder, $newZipName);
+                    if (false === $errorCode = $zip->addFile($newZipName, $certificate . ".zip")) {
+                        throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");
+                    }
+                } else if (false === $errorCode = $zip->addFile($certificateFolder . "/" . $certificate, $certificate)) {
                     throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");
                 }
             }
@@ -94,6 +100,7 @@ class CertificateService
 
             return $zip;
         } catch (Exception $exception) {
+            unlink($temporaryFilePathName);
             throw new $exception;
         }
     }
