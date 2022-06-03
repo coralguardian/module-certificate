@@ -65,7 +65,7 @@ class CertificateService
     public static function downloadCertificates(string $certificatesPath): WP_REST_Response
     {
         // Création du zip
-        $temporaryFilePathName = tempnam(sys_get_temp_dir(),"").".zip";
+        $temporaryFilePathName = tempnam(sys_get_temp_dir(), "") . ".zip";
         CertificateService::createZipFile($certificatesPath, $temporaryFilePathName);
 
         // == Téléchargement du fichier zip par le navigateur ==
@@ -84,7 +84,7 @@ class CertificateService
             $files = array_diff(scandir($certificateFolder), array('..', '.'));
             foreach ($files as $certificate) {
                 if (is_dir($folder = $certificateFolder . "/" . $certificate)) {
-                    $newZipName = tempnam(sys_get_temp_dir(),"").".zip";
+                    $newZipName = tempnam(sys_get_temp_dir(), "") . ".zip";
                     self::createZipFile($folder, $newZipName);
                     if (false === $errorCode = $zip->addFile($newZipName, $certificate . ".zip")) {
                         throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");

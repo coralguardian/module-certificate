@@ -47,6 +47,10 @@ class GetCertificateByGiftEndpoint extends APIEnpointAbstract
                 echo "Une erreur est survenue lors de la génération de vos certificats. Veuillez nous contacter directement.";
                 die;
             }
+            if ($adoptee->getState() === CertificateState::NOT_GENERATED) {
+                $adoptee->setState(CertificateState::TO_GENERATE);
+                DoctrineService::getEntityManager()->flush();
+            }
             if ($adoptee->getState() !== CertificateState::GENERATED) {
                 $areAllAdopteesGenerated = false;
                 break;

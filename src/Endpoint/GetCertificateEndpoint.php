@@ -42,6 +42,10 @@ class GetCertificateEndpoint extends APIEnpointAbstract
 
         /** @var AdopteeEntity $adoptee */
         foreach ($adoption->getAdoptees() as $adoptee) {
+            if ($adoptee->getState() === CertificateState::NOT_GENERATED) {
+                $adoptee->setState(CertificateState::TO_GENERATE);
+                DoctrineService::getEntityManager()->flush();
+            }
             if ($adoptee->getState() !== CertificateState::GENERATED) {
                 $areAllAdopteesGenerated = false;
                 break;
