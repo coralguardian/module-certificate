@@ -14,7 +14,7 @@ use ZipArchive;
 
 class CertificateService
 {
-    public static function createCertificate(CertificateModel $certificateModel, ?int $index = null): string
+    public static function createCertificate(CertificateModel $certificateModel): string
     {
         // Generate certificate
         $loader = new FilesystemLoader(__DIR__ . "/../Template");
@@ -48,13 +48,14 @@ class CertificateService
         );
 
         $fileName = $lang === 'fr' ?
-            "/Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
-            "/Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
+            "Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
+            "Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
 
-        $imageTemporaryFilename = $certificateModel->getSaveFolder() . $fileName . ($index ? "_" . $index: "");
+        $imageTemporaryFilename = $certificateModel->getSaveFolder() . "/" . $fileName;
 
         file_put_contents($imageTemporaryFilename . ".pdf", file_get_contents($pdf));
-        Wkhtmlto::convertToImage($imageTemporaryFilename);
+        Wkhtmlto::convertToImage($imageTemporaryFilename, $fileName);
+        unlink($imageTemporaryFilename . '.pdf');
 
         return $imageTemporaryFilename;
     }
@@ -84,6 +85,18 @@ class CertificateService
             self::cleanTemporaryFiles($certificateFiles);
             throw new $exception;
         }
+    }
+
+    private static function saveFile(string $filename, string $fullpath, string $pdf): void
+    {
+        $index = 1;
+        while (file_exists($fullpath)) {
+            $info = pathinfo($fullpath);
+            $fullpath = $info['dirname'] . '/' . $filename
+                . '(' . $index++ . ')'
+                . '.' . $info['extension'];
+        }
+        file_put_contents($fullpath, file_get_contents($pdf));
     }
 
     private static function cleanTemporaryFiles(array $certificateFiles): void

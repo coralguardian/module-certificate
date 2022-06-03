@@ -9,6 +9,7 @@ enum CertificateState: string
     case TO_GENERATE = 'to_generate';
     case GENERATING = 'generating';
     CASE GENERATED = 'generated';
+    case GENERATION_ERROR = "generation_error";
 
     public function nextState() : ?CertificateState
     {

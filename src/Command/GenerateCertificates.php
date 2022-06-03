@@ -5,10 +5,9 @@ namespace D4rk0snet\Certificate\Command;
 use D4rk0snet\Adoption\Entity\AdopteeEntity;
 use D4rk0snet\Adoption\Entity\AdoptionEntity;
 use D4rk0snet\Adoption\Entity\GiftAdoption;
+use D4rk0snet\Certificate\Enums\CertificateState;
 use D4rk0snet\Certificate\Model\CertificateModel;
 use D4rk0snet\Certificate\Service\CertificateService;
-use D4rk0snet\GiftCode\Entity\GiftCodeEntity;
-use Doctrine\Common\Collections\Collection;
 use Hyperion\Doctrine\Service\DoctrineService;
 use WP_CLI;
 
@@ -18,86 +17,72 @@ class GenerateCertificates
     {
         WP_CLI::log("==== Lancement du script de génération des certificats ====\n");
 
-        $adoptions = DoctrineService::getEntityManager()->getRepository(AdoptionEntity::class)->findCertificatesToGenerate();
+        $adoptees = DoctrineService::getEntityManager()->getRepository(AdopteeEntity::class)->findBy(["state" => CertificateState::TO_GENERATE]);
 
-        if (count($adoptions) === 0) {
+        if (count($adoptees) === 0) {
             return WP_CLI::success("Aucun certificat à générer, fin de la commande.");
         }
 
-        WP_CLI::log("=== " . count($adoptions) . " récupérées ===");
+        WP_CLI::log("=== " . count($adoptees) . " récupérées ===\n");
 
         $baseSaveFolder = __DIR__ . "/../../certificates/";
-        /** @var AdoptionEntity $adoption */
-        foreach ($adoptions as $adoption) {
 
-            WP_CLI::log("=== Démarrage génération des certificats de l'adoption " . $adoption->getUuid() . " ===");
+        /** @var AdopteeEntity $adoptee */
+        foreach ($adoptees as $adoptee) {
+            WP_CLI::log("=== Démarrage génération du certificat de l'adoptee " . $adoptee->getUuid() . " ===");
+
+            $adoption = $adoptee->getAdoption();
+            $folder = $baseSaveFolder . $adoption->getUuid();
 
             if ($adoption instanceof GiftAdoption) {
                 WP_CLI::log("== Gift Adoption ==");
 
-                if ($adoption->getGiftCodes()->count() === 0) {
-                    WP_CLI::log("= Cette adoption n'a pas de giftCodes =");
+                $giftCode = $adoptee->getGiftCode();
+
+                if (null === $giftCode) {
+                    WP_CLI::log("Gift adoption sans giftCode");
+                    self::updateState($adoptee, CertificateState::GENERATION_ERROR);
                     continue;
                 }
 
-                /** @var GiftCodeEntity $giftCode */
-                foreach ($adoption->getGiftCodes() as $giftCode) {
-
-                    if ($giftCode->getAdoptees()->count() === 0) {
-                        WP_CLI::log("= Ce giftCode n'a pas d'adoptees =");
-                        continue;
-                    }
-                    $folder = $baseSaveFolder . $adoption->getUuid();
-                    self::createFolders($folder);
-                    $folder .= "/" . $giftCode->getGiftCode();
-                    self::createFolders($folder);
-
-                    if (!self::isEmptyDir($folder)) {
-                        // le certificat est déjà généré
-                        continue;
-                    }
-                    self::generateCertificates($giftCode->getAdoptees(), $adoption, $folder);
-                }
-
-            } else {
-                WP_CLI::log("== Adoption ==");
-                if ($adoption->getAdoptees()->count() === 0) {
-                    WP_CLI::log("= Cette adoption n'a pas d'adoptees =");
-                    continue;
-                }
-
-                $folder = $baseSaveFolder . $adoption->getUuid();
                 self::createFolders($folder);
-                self::generateCertificates($adoption->getAdoptees(), $adoption, $folder);
+                $folder .= "/" . $giftCode->getGiftCode();
             }
 
-            WP_CLI::log("=== Succès génération des certificats de l'adoption " . $adoption->getUuid() . " ===");
+            try {
+                self::updateState($adoptee);
+                self::createFolders($folder);
+                self::generateCertificate($adoptee, $adoption, $folder);
+                self::updateState($adoptee);
+            } catch (\Exception $exception) {
+                self::updateState($adoptee, CertificateState::TO_GENERATE);
+                WP_CLI::error($exception);
+            }
+
+            WP_CLI::log("=== Succès génération du certificat de l'adoptee " . $adoptee->getUuid() . " ===\n");
         }
 
         return WP_CLI::success("Fin de la génération des certificats");
     }
 
-    private static function updateState(AdoptionEntity $adoptionEntity): void
+    private static function updateState(AdopteeEntity $adoptee, CertificateState $state = null): void
     {
-        $adoptionEntity->setState($adoptionEntity->getState()->nextState());
+        $adoptee->setState($state ?: $adoptee->getState()->nextState());
         DoctrineService::getEntityManager()->flush();
     }
 
-    private static function generateCertificates(Collection $adoptees, AdoptionEntity $adoptionEntity, string $saveFolder): void
+    private static function generateCertificate(AdopteeEntity $adoptee, AdoptionEntity $adoptionEntity, string $saveFolder): void
     {
-        /** @var AdopteeEntity $adoptee */
-        foreach ($adoptees as $index => $adoptee) {
-            $certificateModel = new CertificateModel(
-                adoptedProduct: $adoptionEntity->getAdoptedProduct(),
-                adopteeName: $adoptee->getName(),
-                seeder: $adoptee->getSeeder(),
-                date: $adoptionEntity->getDate(),
-                language: $adoptionEntity->getLang(),
-                productPicture: $adoptee->getPicture(),
-                saveFolder: $saveFolder
-            );
-            CertificateService::createCertificate($certificateModel, $index + 1);
-        }
+        $certificateModel = new CertificateModel(
+            adoptedProduct: $adoptionEntity->getAdoptedProduct(),
+            adopteeName: $adoptee->getName(),
+            seeder: $adoptee->getSeeder(),
+            date: $adoptionEntity->getDate(),
+            language: $adoptionEntity->getLang(),
+            productPicture: $adoptee->getPicture(),
+            saveFolder: $saveFolder
+        );
+        CertificateService::createCertificate($certificateModel);
     }
 
     private static function createFolders(string $dir): void
