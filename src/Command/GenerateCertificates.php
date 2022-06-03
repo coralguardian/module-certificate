@@ -17,7 +17,12 @@ class GenerateCertificates
     {
         WP_CLI::log("==== Lancement du script de génération des certificats ====\n");
 
-        $adoptees = DoctrineService::getEntityManager()->getRepository(AdopteeEntity::class)->findBy(["state" => CertificateState::TO_GENERATE]);
+        $adoptees = DoctrineService::getEntityManager()->getRepository(AdopteeEntity::class)
+            ->findBy(
+                ["state" => CertificateState::TO_GENERATE],
+                null,
+                3
+            );
 
         if (count($adoptees) === 0) {
             return WP_CLI::success("Aucun certificat à générer, fin de la commande.");
