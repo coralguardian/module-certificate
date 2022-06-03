@@ -14,6 +14,7 @@ class CertificateModel
     private \DateTime $date;
     private Language $language;
     private string $productPicture;
+    private string $saveFolder;
 
     public function __construct(
         AdoptedProduct $adoptedProduct,
@@ -21,7 +22,8 @@ class CertificateModel
         Seeder $seeder,
         \DateTime $date,
         Language $language,
-        string $productPicture
+        string $productPicture,
+        string $saveFolder
     ) {
         $this->adoptedProduct = $adoptedProduct;
         $this->adopteeName = $adopteeName;
@@ -29,6 +31,7 @@ class CertificateModel
         $this->language = $language;
         $this->seeder = $seeder;
         $this->productPicture = $productPicture;
+        $this->saveFolder = $saveFolder;
     }
 
     public function toArray() : array
@@ -73,5 +76,10 @@ class CertificateModel
     public function getProductPicture(): string
     {
         return $this->productPicture;
+    }
+
+    public function getSaveFolder(): string
+    {
+        return $this->saveFolder;
     }
 }

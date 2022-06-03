@@ -16,7 +16,7 @@ enum CertificateState: string
             CertificateState::NOT_GENERATED => CertificateState::TO_GENERATE,
             CertificateState::TO_GENERATE => CertificateState::GENERATING,
             CertificateState::GENERATING => CertificateState::GENERATED,
-            CertificateState::GENERATED => null
+            CertificateState::GENERATED => throw new \Exception("You should not reach this")
         };
     }
 }
