@@ -4,8 +4,9 @@ namespace D4rk0snet\Certificate\Endpoint;
 
 use D4rk0snet\Adoption\Entity\AdopteeEntity;
 use D4rk0snet\Adoption\Entity\AdoptionEntity;
+use D4rk0snet\Adoption\Entity\GiftAdoption;
+use D4rk0snet\Certificate\Enums\CertificateState;
 use D4rk0snet\Certificate\Service\CertificateService;
-use D4rk0snet\Certificate\Model\CertificateModel;
 use Hyperion\Doctrine\Service\DoctrineService;
 use Hyperion\RestAPI\APIEnpointAbstract;
 use Hyperion\RestAPI\APIManagement;
@@ -29,38 +30,36 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             return APIManagement::APIError('Adoption not found', 404);
         }
 
+        if ($adoption instanceof GiftAdoption) {
+            return APIManagement::APIError('Wrong endpoint for giftAdoptions', 400);
+        }
+
         if ($adoption->getAdoptees()->count() === 0) {
             return APIManagement::APIError('Adoption without adoptees', 400);
         }
 
-        $imageFilePathCollection = [];
-
-        /** @var AdopteeEntity $adoptee */
-        foreach ($adoption->getAdoptees() as $index => $adoptee) {
-            try {
-                $certificateModel = new CertificateModel(
-                    adoptedProduct: $adoption->getAdoptedProduct(),
-                    adopteeName: $adoptee->getName(),
-                    seeder: $adoptee->getSeeder(),
-                    date: $adoption->getDate(),
-                    language: $adoption->getLang(),
-                    productPicture: $adoptee->getPicture()
-                );
-            } catch (\Exception $exception) {
-                return APIManagement::APIError($exception->getMessage(), 400);
-            }
-
-            $imageFilePathCollection[] = CertificateService::createCertificate($certificateModel, $index+1);
+        if (!$adoption->isPaid()) { // ce cas ne devrait pas arriver
+            return APIManagement::APIError('Adoption not payed', 400);
         }
 
-        // Création du zip
-        $temporaryFilePathName = tempnam(sys_get_temp_dir(),"").".zip";
-        CertificateService::createZipFile($imageFilePathCollection, $temporaryFilePathName);
+        $areAllAdopteesGenerated = true;
 
-        // == Téléchargement du fichier zip par le navigateur ==
-        $response = APIManagement::APIClientDownloadWithURL($temporaryFilePathName, "certificats.zip");
-        unlink($temporaryFilePathName);
-        return $response;
+        /** @var AdopteeEntity $adoptee */
+        foreach ($adoption->getAdoptees() as $adoptee) {
+            if ($adoptee->getState() !== CertificateState::GENERATED) {
+                $areAllAdopteesGenerated = false;
+                break;
+            }
+        }
+
+        if (!$areAllAdopteesGenerated) {
+            echo "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
+            die;
+        }
+
+        $certificatesPath = WP_PLUGIN_DIR ."/certificate/certificates/" . $adoption->getUuid();
+
+        return CertificateService::downloadCertificates($certificatesPath);
     }
 
     public static function getEndpoint(): string

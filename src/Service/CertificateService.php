@@ -8,8 +8,10 @@ use D4rk0snet\Certificate\Model\CertificateModel;
 use Hyperion\Api2pdf\Service\Api2PdfService;
 use Hyperion\Api2pdf\Service\Wkhtmlto;
 use Exception;
+use Hyperion\RestAPI\APIManagement;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
+use WP_REST_Response;
 use ZipArchive;
 
 class CertificateService
@@ -60,16 +62,28 @@ class CertificateService
         return $imageTemporaryFilename;
     }
 
-    public static function createZipFile(array $certificateFiles, string $temporaryFilePathName): ZipArchive
+    public static function downloadCertificates(string $certificatesPath): WP_REST_Response
+    {
+        // Création du zip
+        $temporaryFilePathName = tempnam(sys_get_temp_dir(),"").".zip";
+        CertificateService::createZipFile($certificatesPath, $temporaryFilePathName);
+
+        // == Téléchargement du fichier zip par le navigateur ==
+        $response = APIManagement::APIClientDownloadWithURL($temporaryFilePathName, "certificats.zip");
+        unlink($temporaryFilePathName);
+        return $response;
+    }
+
+    public static function createZipFile(string $certificateFolder, string $temporaryFilePathName): ZipArchive
     {
         try {
             $zip = new ZipArchive();
             if (false === $errorCode = $zip->open($temporaryFilePathName, ZipArchive::CREATE)) {
                 throw new Exception("Unable to open Zip File (error code " . $errorCode . ")");
             }
-            foreach ($certificateFiles as $certificate) {
-                $certificate .= ".jpg";
-                if (false === $errorCode = $zip->addFile($certificate, basename($certificate))) {
+            $files = array_diff(scandir($certificateFolder), array('..', '.'));
+            foreach ($files as $certificate) {
+                if (false === $errorCode = $zip->addFile($certificateFolder . "/" . $certificate, $certificate)) {
                     throw new Exception("Unable to add file to zip (error code " . $errorCode . ")");
                 }
             }
@@ -78,32 +92,9 @@ class CertificateService
                 throw new Exception("Unable to write zip to disk !");
             }
 
-            self::cleanTemporaryFiles($certificateFiles);
-
             return $zip;
         } catch (Exception $exception) {
-            self::cleanTemporaryFiles($certificateFiles);
             throw new $exception;
-        }
-    }
-
-    private static function saveFile(string $filename, string $fullpath, string $pdf): void
-    {
-        $index = 1;
-        while (file_exists($fullpath)) {
-            $info = pathinfo($fullpath);
-            $fullpath = $info['dirname'] . '/' . $filename
-                . '(' . $index++ . ')'
-                . '.' . $info['extension'];
-        }
-        file_put_contents($fullpath, file_get_contents($pdf));
-    }
-
-    private static function cleanTemporaryFiles(array $certificateFiles): void
-    {
-        foreach ($certificateFiles as $certificateFile) {
-            unlink($certificateFile . '.jpg');
-            unlink($certificateFile . '.pdf');
         }
     }
 
