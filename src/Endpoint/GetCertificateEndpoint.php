@@ -58,7 +58,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
                 }
             } else {
                 return APIManagement::HTMLResponse(
-                    "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes."
+                    "Vos certificats sont en cours de generation, veuillez reessayer d'ici quelques minutes."
                 );
             }
         }
