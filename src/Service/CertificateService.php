@@ -140,10 +140,10 @@ class CertificateService
     public static function createFolders(string $dir): void
     {
         if (!is_dir(self::BASE_SAVE_FOLDER)) {
-            mkdir(self::BASE_SAVE_FOLDER, 0755);
+            mkdir(self::BASE_SAVE_FOLDER);
         }
         if (!is_dir($dir)) {
-            mkdir($dir, 0755);
+            mkdir($dir);
         }
     }
 
