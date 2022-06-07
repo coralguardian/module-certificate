@@ -54,7 +54,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
 
         if (!$areAllAdopteesGenerated) {
             $response = new WP_REST_Response();
-            $content = "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
+            $content = "Vos certificats sont en cours de generation, veuillez reessayer d'ici quelques minutes.";
             $response->set_data($content);
             $response->set_headers([
                 'Content-Type' => 'text/html',
