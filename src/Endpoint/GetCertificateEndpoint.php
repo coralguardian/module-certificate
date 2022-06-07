@@ -53,8 +53,15 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         }
 
         if (!$areAllAdopteesGenerated) {
-            echo "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
-            die;
+            $response = new WP_REST_Response();
+            $content = "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
+            $response->set_data($content);
+            $response->set_headers([
+                'Content-Type' => 'text/html',
+                'Content-Length' => strlen($content)
+            ]);
+
+            return $response;
         }
 
         $certificatesPath = WP_PLUGIN_DIR ."/certificate/certificates/" . $adoption->getUuid();
