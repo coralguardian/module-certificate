@@ -4,7 +4,6 @@ namespace D4rk0snet\Certificate\Endpoint;
 
 use D4rk0snet\Adoption\Entity\AdopteeEntity;
 use D4rk0snet\Adoption\Entity\AdoptionEntity;
-use D4rk0snet\Adoption\Entity\GiftAdoption;
 use D4rk0snet\Certificate\Enums\CertificateState;
 use D4rk0snet\Certificate\Service\CertificateService;
 use Hyperion\Doctrine\Service\DoctrineService;
@@ -53,18 +52,18 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         }
 
         if (!$areAllAdopteesGenerated) {
-            $response = new WP_REST_Response();
-            $content = "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
-            $response->set_data($content);
-            $response->set_headers([
-                'Content-Type' => 'text/html',
-                'Content-Length' => strlen($content)
-            ]);
-
-            return $response;
+            if ($adoption->getAdoptees() <= 3) {
+                foreach ($adoption->getAdoptees() as $adoptee) {
+                    CertificateService::fullGenerationProcess($adoptee);
+                }
+            } else {
+                return APIManagement::HTMLResponse(
+                    "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes."
+                );
+            }
         }
 
-        $certificatesPath = WP_PLUGIN_DIR ."/certificate/certificates/" . $adoption->getUuid();
+        $certificatesPath = CertificateService::BASE_SAVE_FOLDER . $adoption->getUuid();
 
         return CertificateService::downloadCertificates($certificatesPath);
     }

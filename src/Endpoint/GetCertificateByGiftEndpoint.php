@@ -44,8 +44,9 @@ class GetCertificateByGiftEndpoint extends APIEnpointAbstract
         /** @var AdopteeEntity $adoptee */
         foreach ($giftCode->getAdoptees() as $adoptee) {
             if ($adoptee->getState() === CertificateState::GENERATION_ERROR) {
-                echo "Une erreur est survenue lors de la génération de vos certificats. Veuillez nous contacter directement.";
-                die;
+                return APIManagement::HTMLResponse(
+                    "Une erreur est survenue lors de la génération de vos certificats. Veuillez nous contacter directement."
+                );
             }
             if ($adoptee->getState() === CertificateState::NOT_GENERATED) {
                 $adoptee->setState(CertificateState::TO_GENERATE);
@@ -58,11 +59,18 @@ class GetCertificateByGiftEndpoint extends APIEnpointAbstract
         }
 
         if (!$areAllAdopteesGenerated) {
-            echo "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes.";
-            die;
+            if ($giftCode->getProductQuantity() <= 3) {
+                foreach ($giftCode->getAdoptees() as $adoptee) {
+                    CertificateService::fullGenerationProcess($adoptee);
+                }
+            } else {
+                return APIManagement::HTMLResponse(
+                    "Vos certificats sont en cours de génération, veuillez réessayer d'ici quelques minutes."
+                );
+            }
         }
 
-        $certificatesPath = WP_PLUGIN_DIR ."/certificate/certificates/" . $adoption->getUuid() . "/" . $giftCode->getGiftCode();
+        $certificatesPath = CertificateService::BASE_SAVE_FOLDER . $adoption->getUuid() . "/" . $giftCode->getGiftCode();
 
         return CertificateService::downloadCertificates($certificatesPath);
     }

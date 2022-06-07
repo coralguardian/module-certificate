@@ -1,5 +1,5 @@
 /vendor/
 /certificates/*
 !/certificates/.gitkeep
-
+.DS_Store
 

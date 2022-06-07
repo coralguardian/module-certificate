@@ -2,12 +2,17 @@
 
 namespace D4rk0snet\Certificate\Service;
 
+use D4rk0snet\Adoption\Entity\AdopteeEntity;
+use D4rk0snet\Adoption\Entity\AdoptionEntity;
+use D4rk0snet\Adoption\Entity\GiftAdoption;
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
 use D4rk0snet\Certificate\Endpoint\GetCertificateEndpoint;
+use D4rk0snet\Certificate\Enums\CertificateState;
 use D4rk0snet\Certificate\Model\CertificateModel;
 use Hyperion\Api2pdf\Service\Api2PdfService;
 use Hyperion\Api2pdf\Service\Wkhtmlto;
 use Exception;
+use Hyperion\Doctrine\Service\DoctrineService;
 use Hyperion\RestAPI\APIManagement;
 use Twig\Environment;
 use Twig\Loader\FilesystemLoader;
@@ -16,6 +21,8 @@ use ZipArchive;
 
 class CertificateService
 {
+    const BASE_SAVE_FOLDER = WP_CONTENT_DIR . "/uploads/certificates/";
+
     public static function createCertificate(CertificateModel $certificateModel): string
     {
         // Generate certificate
@@ -108,5 +115,62 @@ class CertificateService
     public static function getUrl(string $uuid)
     {
         return GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid;
+    }
+
+    public static function updateState(AdopteeEntity $adoptee, CertificateState $state = null): void
+    {
+        $adoptee->setState($state ?: $adoptee->getState()->nextState());
+        DoctrineService::getEntityManager()->flush();
+    }
+
+    public static function generateCertificate(AdopteeEntity $adoptee, AdoptionEntity $adoptionEntity, string $saveFolder): void
+    {
+        $certificateModel = new CertificateModel(
+            adoptedProduct: $adoptionEntity->getAdoptedProduct(),
+            adopteeName: $adoptee->getName(),
+            seeder: $adoptee->getSeeder(),
+            date: $adoptionEntity->getDate(),
+            language: $adoptionEntity->getLang(),
+            productPicture: $adoptee->getPicture(),
+            saveFolder: $saveFolder
+        );
+        self::createCertificate($certificateModel);
+    }
+
+    public static function createFolders(string $dir): void
+    {
+        if (!is_dir(self::BASE_SAVE_FOLDER)) {
+            mkdir(self::BASE_SAVE_FOLDER, 0755);
+        }
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755);
+        }
+    }
+
+    public static function fullGenerationProcess(AdopteeEntity $adoptee) {
+        $adoption = $adoptee->getAdoption();
+        $folder = self::BASE_SAVE_FOLDER . $adoption->getUuid();
+
+        if ($adoption instanceof GiftAdoption) {
+            $giftCode = $adoptee->getGiftCode();
+
+            if (null === $giftCode) {
+                self::updateState($adoptee, CertificateState::GENERATION_ERROR);
+                return;
+            }
+
+            self::createFolders($folder);
+            $folder .= "/" . $giftCode->getGiftCode();
+        }
+
+        try {
+            self::updateState($adoptee);
+            self::createFolders($folder);
+            self::generateCertificate($adoptee, $adoption, $folder);
+            self::updateState($adoptee);
+        } catch (\Exception $exception) {
+            self::updateState($adoptee, CertificateState::TO_GENERATE);
+            throw $exception;
+        }
     }
 }
