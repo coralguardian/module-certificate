@@ -164,10 +164,10 @@ class CertificateService
         }
 
         try {
-            self::updateState($adoptee);
+            self::updateState($adoptee, CertificateState::GENERATING);
             self::createFolders($folder);
             self::generateCertificate($adoptee, $adoption, $folder);
-            self::updateState($adoptee);
+            self::updateState($adoptee, CertificateState::GENERATED);
         } catch (\Exception $exception) {
             self::updateState($adoptee, CertificateState::TO_GENERATE);
             throw $exception;

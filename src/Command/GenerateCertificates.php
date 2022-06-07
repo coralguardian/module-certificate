@@ -3,10 +3,7 @@
 namespace D4rk0snet\Certificate\Command;
 
 use D4rk0snet\Adoption\Entity\AdopteeEntity;
-use D4rk0snet\Adoption\Entity\AdoptionEntity;
-use D4rk0snet\Adoption\Entity\GiftAdoption;
 use D4rk0snet\Certificate\Enums\CertificateState;
-use D4rk0snet\Certificate\Model\CertificateModel;
 use D4rk0snet\Certificate\Service\CertificateService;
 use Hyperion\Doctrine\Service\DoctrineService;
 use WP_CLI;
