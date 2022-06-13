@@ -6,6 +6,7 @@ use D4rk0snet\Adoption\Entity\AdopteeEntity;
 use D4rk0snet\Adoption\Entity\AdoptionEntity;
 use D4rk0snet\Adoption\Entity\GiftAdoption;
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
+use D4rk0snet\Certificate\Endpoint\GetCertificateByGiftEndpoint;
 use D4rk0snet\Certificate\Endpoint\GetCertificateEndpoint;
 use D4rk0snet\Certificate\Enums\CertificateState;
 use D4rk0snet\Certificate\Model\CertificateModel;
@@ -112,9 +113,10 @@ class CertificateService
         }
     }
 
-    public static function getUrl(string $uuid)
+    public static function getUrl(string $uuid, bool $fromGift = false)
     {
-        return GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid;
+        return $fromGift ? GetCertificateByGiftEndpoint::getUrl() . "?" . GetCertificateByGiftEndpoint::GIFT_CODE_PARAM . "=" . $uuid :
+            GetCertificateEndpoint::getUrl() . "?" . GetCertificateEndpoint::ORDER_UUID_PARAM . "=" . $uuid;
     }
 
     public static function updateState(AdopteeEntity $adoptee, CertificateState $state = null): void
