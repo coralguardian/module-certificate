@@ -3,8 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}Certificat d'adoption{% endblock %}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+
     <style>
+
+        @font-face {
+            font-family: "Courier New";
+            src: url("http://preprod.coralguardian.lescanumeriques.fr/app/uploads/Courier_New.ttf") format("truetype")
+        }
 
         @page{
             margin: -1px;
@@ -24,6 +30,11 @@
             width: 795px;
         }
 
+        * {
+            font-family: 'Open Sans', sans-serif;
+            letter-spacing: 1px;
+        }
+
         .certif-wrapper {
             background: url("data:image/png;base64,{{backgroundImg}}") no-repeat;
             background-size: cover;
@@ -38,13 +49,15 @@
 
         .typo-courrier {
             font-family: "Courier New";
+            font-weight: 500;
+            letter-spacing: 0px;
         }
 
         .certif-stamp {
             position: absolute;
             top: 20px;
             right: 20px;
-            width: 180px;
+            width: 200px;
             /*height: 280px; !* garder le ratio *!*/
         }
 
@@ -59,6 +72,7 @@
         .certif-content header {
             text-align: center;
             margin-bottom: 60px;
+            padding: 0 50px;
         }
 
         .certif-content header.less-margin {
@@ -104,8 +118,11 @@
         }
 
         .content-pics .pic-transplanteur .typo-courrier {
-            font-weight: 700;
             font-size: 19px;
+        }
+
+        .font-size-lower {
+          font-size: 17px !important;
         }
 
         .content-pics .pic-transplanteur img {
@@ -163,6 +180,10 @@
         .infos .text-uppercase {
             font-family: Open Sans, sans-serif;
             font-weight: 600;
+        }
+
+        .letter-spacing-unset {
+            letter-spacing: 0px;
         }
     </style>
 </head>

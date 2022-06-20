@@ -38,10 +38,10 @@ class CertificateModel
     {
         return [
             'adopteeName' => $this->adopteeName,
-            'seeder' => $this->seeder->value,
+            'seeder' => $this->seeder->getName(),
             'seederPicture' => $this->getSeeder()->getPicture(),
             'productPicture' => $this->getProductPicture(),
-            'date' => $this->date->format("d-m-Y")
+            'date' => $this->date->format("d/m/Y")
         ];
     }
 
