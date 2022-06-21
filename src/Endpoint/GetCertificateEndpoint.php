@@ -52,8 +52,11 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         }
 
         if (!$areAllAdopteesGenerated) {
-            if ($adoption->getAdoptees() <= 3) {
+            if ($adoption->getAdoptees()->count() <= 3) {
                 foreach ($adoption->getAdoptees() as $adoptee) {
+                    if ($adoptee->getState() === CertificateState::GENERATED) {
+                        continue;
+                    }
                     CertificateService::fullGenerationProcess($adoptee);
                 }
             } else {
