@@ -158,7 +158,7 @@ class CertificateService
 
             if (null === $giftCode) {
                 self::updateState($adoptee, CertificateState::GENERATION_ERROR);
-                return;
+                throw new Exception("Gift adoption should have a giftCode to generate certificate.");
             }
 
             self::createFolders($folder);
