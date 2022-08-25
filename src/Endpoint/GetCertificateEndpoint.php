@@ -44,6 +44,10 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             if ($adoptee->getState() === CertificateState::NOT_GENERATED) {
                 $adoptee->setState(CertificateState::TO_GENERATE);
                 DoctrineService::getEntityManager()->flush();
+            } elseif ($adoptee->getState() === CertificateState::GENERATION_ERROR) {
+                return APIManagement::HTMLResponse(
+                    "Une erreur est survenue lors de la génération de vos certificats. Veuillez contacter les administrateurs du site."
+                );
             }
             if ($adoptee->getState() !== CertificateState::GENERATED) {
                 $areAllAdopteesGenerated = false;

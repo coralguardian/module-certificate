@@ -171,7 +171,7 @@ class CertificateService
             self::generateCertificate($adoptee, $adoption, $folder);
             self::updateState($adoptee, CertificateState::GENERATED);
         } catch (\Exception $exception) {
-            self::updateState($adoptee, CertificateState::TO_GENERATE);
+            self::updateState($adoptee, CertificateState::GENERATION_ERROR);
             throw $exception;
         }
     }
