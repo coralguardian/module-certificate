@@ -34,9 +34,11 @@ class CertificateService
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
             $file = "coral-$lang.twig";
             $picturePath = "corals/" . $certificateModel->getProductPicture();
+            $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
             $file = "reef-$lang.twig";
             $picturePath = "reefs/" . $certificateModel->getProductPicture();
+            $type = $lang === "fr" ? "Recif" : "Reef";
         }
 
         $html = $twig->load($file)->render(
@@ -58,8 +60,8 @@ class CertificateService
         );
 
         $fileName = $lang === 'fr' ?
-            "Coral_Guardian_Certificat_" . urlencode($certificateModel->getAdopteeName()) :
-            "Coral_Guardian_Certificate_" . urlencode($certificateModel->getAdopteeName());
+            "Coral_Guardian_Certificat_" . $type :
+            "Coral_Guardian_Certificate_" . $type;
 
         $imageTemporaryFilename = $certificateModel->getSaveFolder() . "/" . $fileName;
 
