@@ -1,0 +1,48 @@
+{% extends "base.twig" %}
+{% block body %}
+
+    <div class="certif-wrapper">
+
+        <img class="certif-stamp" src="data:image/png;base64,{{ stampImg }}" alt="Certificat d'adoption"/>
+
+        <div class="certif-content">
+            <header class="less-margin">
+                <h1>Certificat d'adoption</h1>
+                <hr>
+                <span>
+					d’un corail contribuant au projet de<br>restauration corallienne Deep CORE<br>en Méditerranée
+				</span>
+            </header>
+
+            <div class="content-pics">
+
+                <div class="pic-corail">
+                    <img src="data:image/png;base64,{{ productImg }}" alt="Corail adopté"/>
+                </div>
+
+                <div class="pic-transplanteur">
+                    <img src="data:image/png;base64,{{ transplantImg }}" alt="Transplanteur"/>
+                    <strong class="text-uppercase">Restauré par :</strong><br>
+                    <span class="typo-courrier">{{ data.seeder }}</span>
+                </div>
+
+            </div>
+
+            <div class="content-infos">
+                <span class="infos-title">{{ data.adopteeName }}</span>
+                <span class="infos">
+                <span class="text-uppercase">Espèce : </span><em class="typo-courrier">Dendrophyllia ramea</em><br>
+					<span class="text-uppercase">Date : </span><span class="typo-courrier">{{ data.date }}</span><br>
+					<span class="text-uppercase">Coordonnées GPS : </span><span class="typo-courrier letter-spacing-unset">36°43'08.85''N - 3°43'38.02''0</span>
+				</span>
+            </div>
+
+            <hr class="bottom-hr">
+
+            <a class="certif-website" href="https://www.coralguardian.org/">En partenariat avec l'association locale Coral Soul, Punta de la Monta</a>
+        </div>
+
+        <img class="logo" src="data:image/png;base64,{{ logoImg }}" alt="Coral Guardian"/>
+
+    </div>
+{% endblock %}

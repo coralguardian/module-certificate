@@ -31,12 +31,13 @@ class CertificateService
         $twig = new Environment($loader); // @todo : Activer le cache
         $lang = $certificateModel->getLanguage()->value;
 
+        //@todo: récupérer le projet dynamiquement
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $file = "coral-$lang.twig";
+            $file = "coral-indonesia-$lang.twig";
             $picturePath = "corals/" . $certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
-            $file = "reef-$lang.twig";
+            $file = "reef-indonesia-$lang.twig";
             $picturePath = "reefs/" . $certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Recif" : "Reef";
         }
