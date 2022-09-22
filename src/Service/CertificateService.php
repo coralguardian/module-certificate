@@ -31,16 +31,15 @@ class CertificateService
         $twig = new Environment($loader); // @todo : Activer le cache
         $lang = $certificateModel->getLanguage()->value;
 
-        //@todo: récupérer le projet dynamiquement
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $file = "coral-indonesia-$lang.twig";
             $picturePath = "corals/" . $certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
-            $file = "reef-indonesia-$lang.twig";
             $picturePath = "reefs/" . $certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Recif" : "Reef";
         }
+
+        $file = self::getTemplateFileName($certificateModel);
 
         $html = $twig->load($file)->render(
             [
@@ -137,7 +136,8 @@ class CertificateService
             date: $adoptionEntity->getDate(),
             language: $adoptionEntity->getLang(),
             productPicture: $adoptee->getPicture(),
-            saveFolder: $saveFolder
+            saveFolder: $saveFolder, 
+            project: $adoptionEntity->getProject()
         );
         self::createCertificate($certificateModel);
     }
@@ -176,6 +176,17 @@ class CertificateService
         } catch (\Exception $exception) {
             self::updateState($adoptee, CertificateState::GENERATION_ERROR);
             throw $exception;
+        }
+    }
+
+    private static function getTemplateFileName(CertificateModel $certificateModel)
+    {
+        $project = $certificateModel->getProject()->value;
+        $lang = $certificateModel->getLanguage()->value;
+        if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
+            return "coral-$project-$lang.twig";
+        } else {
+            return "reef-$project-$lang.twig";
         }
     }
 }

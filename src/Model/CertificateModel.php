@@ -5,6 +5,7 @@ namespace D4rk0snet\Certificate\Model;
 use D4rk0snet\Adoption\Enums\AdoptedProduct;
 use D4rk0snet\Adoption\Enums\Seeder;
 use D4rk0snet\Coralguardian\Enums\Language;
+use D4rk0snet\CoralOrder\Enums\Project;
 
 class CertificateModel
 {
@@ -15,6 +16,7 @@ class CertificateModel
     private Language $language;
     private string $productPicture;
     private string $saveFolder;
+    private Project $project;
 
     public function __construct(
         AdoptedProduct $adoptedProduct,
@@ -23,7 +25,8 @@ class CertificateModel
         \DateTime $date,
         Language $language,
         string $productPicture,
-        string $saveFolder
+        string $saveFolder,
+        Project $project
     ) {
         $this->adoptedProduct = $adoptedProduct;
         $this->adopteeName = $adopteeName;
@@ -32,6 +35,7 @@ class CertificateModel
         $this->seeder = $seeder;
         $this->productPicture = $productPicture;
         $this->saveFolder = $saveFolder;
+        $this->project = $project;
     }
 
     public function toArray() : array
@@ -81,5 +85,13 @@ class CertificateModel
     public function getSaveFolder(): string
     {
         return $this->saveFolder;
+    }
+
+    /**
+     * @return Project
+     */
+    public function getProject(): Project
+    {
+        return $this->project;
     }
 }
