@@ -39,10 +39,14 @@
 
             <hr class="bottom-hr">
 
-            <a class="certif-website" href="https://www.coralguardian.org/">En partenariat avec l'association locale Coral Soul, Punta de la Monta</a>
+            <a class="certif-website-spain letter-spacing-unset" href="https://www.coralguardian.org/">En partenariat avec l'association locale Coral Soul, Punta de la Monta</a>
         </div>
 
-        <img class="logo" src="data:image/png;base64,{{ logoImg }}" alt="Coral Guardian"/>
+        <div class="logo-container">
+            <img class="logo" src="data:image/png;base64,{{ cgLogoImg }}" alt="Coral Guardian"/>
+            <span class="logo-separator">-</span>
+            <img class="logo" src="data:image/png;base64,{{ csLogoImg }}" alt="Coral Soul"/>
+        </div>
 
     </div>
 {% endblock %}

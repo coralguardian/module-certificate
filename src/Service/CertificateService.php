@@ -47,8 +47,9 @@ class CertificateService
                 'backgroundImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/bg-global-xl.jpg")),
                 'productImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/$picturePath")),
                 'transplantImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/seeders/" . $certificateModel->getSeeder()->getPicture())),
-                'teamImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/coral-guardian-team.png")),
-                'logoImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/logo-coral-guardian.png")),
+                'teamImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/seeders/coral-guardian-team.png")),
+                'cgLogoImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/Coral-Guardian-Logo-White.png")),
+                'csLogoImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/logo-coral-soul.png")),
                 'stampImg' => base64_encode(file_get_contents(__DIR__ . "/../../assets/img/stamp.png")),
             ]
         );
