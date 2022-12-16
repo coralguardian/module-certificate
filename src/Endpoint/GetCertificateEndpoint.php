@@ -38,6 +38,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         }
 
         $areAllAdopteesGenerated = true;
+        $certificatesPath = CertificateService::BASE_SAVE_FOLDER . $adoption->getUuid();
 
         /** @var AdopteeEntity $adoptee */
         foreach ($adoption->getAdoptees() as $adoptee) {
@@ -49,7 +50,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
                     "Une erreur est survenue lors de la génération de vos certificats. Veuillez contacter les administrateurs du site."
                 );
             }
-            if ($adoptee->getState() !== CertificateState::GENERATED) {
+            if ($adoptee->getState() !== CertificateState::GENERATED || !is_dir($certificatesPath)) {
                 $areAllAdopteesGenerated = false;
                 break;
             }
@@ -58,7 +59,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
         if (!$areAllAdopteesGenerated) {
             if ($adoption->getAdoptees()->count() <= 3) {
                 foreach ($adoption->getAdoptees() as $adoptee) {
-                    if ($adoptee->getState() === CertificateState::GENERATED) {
+                    if ($adoptee->getState() === CertificateState::GENERATED && is_dir($certificatesPath)) {
                         continue;
                     }
                     CertificateService::fullGenerationProcess($adoptee);
@@ -70,7 +71,7 @@ class GetCertificateEndpoint extends APIEnpointAbstract
             }
         }
 
-        $certificatesPath = CertificateService::BASE_SAVE_FOLDER . $adoption->getUuid();
+
 
         return CertificateService::downloadCertificates($certificatesPath);
     }
