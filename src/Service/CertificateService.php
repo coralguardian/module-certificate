@@ -32,10 +32,10 @@ class CertificateService
         $lang = $certificateModel->getLanguage()->value;
 
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $picturePath = "corals/" . $certificateModel->getProject()->value."/".$certificateModel->getProductPicture();
+            $picturePath = "corals/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
-            $picturePath = "reefs/" . $certificateModel->getProject()->value."/".$certificateModel->getProductPicture();
+            $picturePath = "reefs/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Recif" : "Reef";
         }
 
@@ -157,10 +157,14 @@ class CertificateService
     public static function createFolders(string $dir): void
     {
         if (!is_dir(self::BASE_SAVE_FOLDER)) {
-            mkdir(self::BASE_SAVE_FOLDER);
+            if (!mkdir($concurrentDirectory = self::BASE_SAVE_FOLDER) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
         }
         if (!is_dir($dir)) {
-            mkdir($dir);
+            if (!mkdir($dir) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            }
         }
     }
 
