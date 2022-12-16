@@ -32,10 +32,10 @@ class CertificateService
         $lang = $certificateModel->getLanguage()->value;
 
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $picturePath = "corals/" . $certificateModel->getProductPicture();
+            $picturePath = "corals/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
-            $picturePath = "reefs/" . $certificateModel->getProductPicture();
+            $picturePath = "reefs/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Recif" : "Reef";
         }
 
@@ -130,13 +130,24 @@ class CertificateService
 
     public static function generateCertificate(AdopteeEntity $adoptee, AdoptionEntity $adoptionEntity, string $saveFolder): void
     {
+        $productPicture = $adoptee->getPicture();
+        if(!file_exists(__DIR__ . "/../../assets/img/$productPicture")) {
+            $productPictures = AdoptedProduct::getRandomizedProductImages(
+                $adoptionEntity->getAdoptedProduct(),
+                $adoptionEntity->getProject()
+            );
+            $productPicture = current($productPictures);
+            $adoptee->setPicture($productPicture);
+            DoctrineService::getEntityManager()->flush();
+        }
+
         $certificateModel = new CertificateModel(
             adoptedProduct: $adoptionEntity->getAdoptedProduct(),
             adopteeName: $adoptee->getName(),
             seeder: $adoptee->getSeeder(),
             date: $adoptionEntity->getDate(),
             language: $adoptionEntity->getLang(),
-            productPicture: $adoptee->getPicture(),
+            productPicture: $productPicture,
             saveFolder: $saveFolder, 
             project: $adoptionEntity->getProject()
         );
@@ -146,10 +157,14 @@ class CertificateService
     public static function createFolders(string $dir): void
     {
         if (!is_dir(self::BASE_SAVE_FOLDER)) {
-            mkdir(self::BASE_SAVE_FOLDER);
+            if (!mkdir($concurrentDirectory = self::BASE_SAVE_FOLDER) && !is_dir($concurrentDirectory)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $concurrentDirectory));
+            }
         }
         if (!is_dir($dir)) {
-            mkdir($dir);
+            if (!mkdir($dir) && !is_dir($dir)) {
+                throw new \RuntimeException(sprintf('Directory "%s" was not created', $dir));
+            }
         }
     }
 
