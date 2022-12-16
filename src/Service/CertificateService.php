@@ -32,10 +32,10 @@ class CertificateService
         $lang = $certificateModel->getLanguage()->value;
 
         if ($certificateModel->getAdoptedProduct() === AdoptedProduct::CORAL) {
-            $picturePath = "corals/" . $certificateModel->getProductPicture();
+            $picturePath = "corals/" . $certificateModel->getProject()->value."/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Corail" : "Coral";
         } else {
-            $picturePath = "reefs/" . $certificateModel->getProductPicture();
+            $picturePath = "reefs/" . $certificateModel->getProject()->value."/".$certificateModel->getProductPicture();
             $type = $lang === "fr" ? "Recif" : "Reef";
         }
 
