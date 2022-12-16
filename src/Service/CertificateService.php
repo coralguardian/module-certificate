@@ -130,13 +130,24 @@ class CertificateService
 
     public static function generateCertificate(AdopteeEntity $adoptee, AdoptionEntity $adoptionEntity, string $saveFolder): void
     {
+        $productPicture = $adoptee->getPicture();
+        if(!file_exists(__DIR__ . "/../../assets/img/$productPicture")) {
+            $productPictures = AdoptedProduct::getRandomizedProductImages(
+                $adoptionEntity->getAdoptedProduct(),
+                $adoptionEntity->getProject()
+            );
+            $productPicture = current($productPictures);
+            $adoptee->setPicture($productPicture);
+            DoctrineService::getEntityManager()->flush();
+        }
+
         $certificateModel = new CertificateModel(
             adoptedProduct: $adoptionEntity->getAdoptedProduct(),
             adopteeName: $adoptee->getName(),
             seeder: $adoptee->getSeeder(),
             date: $adoptionEntity->getDate(),
             language: $adoptionEntity->getLang(),
-            productPicture: $adoptee->getPicture(),
+            productPicture: $productPicture,
             saveFolder: $saveFolder, 
             project: $adoptionEntity->getProject()
         );
