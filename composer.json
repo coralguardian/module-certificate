@@ -34,7 +34,7 @@
     "require": {
         "twig/twig": "^3.3",
         "hyperion/api2pdf": "dev-dev",
-        "hyperion/restapi": "dev-dev",
+        "wordpress-hyperion/restapi": "dev-dev",
         "d4rk0snet/adoption": "dev-dev"
     }
 }
