@@ -12,7 +12,12 @@
             "type" : "vcs",
             "url": "git@github.com:coralguardian/module-adoption.git",
             "no-api": true
-        }
+        },
+      {
+        "type" : "vcs",
+        "url": "git@github.com:ds-hyperion/stripe.git",
+        "no-api": true
+      }
     ],
     "authors": [
         {
